@@ -2,20 +2,21 @@
 
 [Español](README.md) · [English](README.en.md)
 
-Landing de demostración: ferretería industrial con catálogo técnico, paquetes de obra y cotización por WhatsApp.
+Sitio web de demostración, de una sola página: ferretería industrial con catálogo técnico, paquetes de obra y cotización por WhatsApp.
 
 **Demo en vivo:** https://agencia-web-ferreteria-demo.vercel.app
 
-> Es una plantilla de demostración de [Carlos Avila](https://github.com/AvilaCarlosDev): el negocio, los precios y las cifras son de ejemplo. Sirve como base para adaptar una landing a un cliente real.
+> Es una plantilla de demostración de [Carlos Avila](https://github.com/AvilaCarlosDev): el negocio, los precios y las cifras son de ejemplo. Sirve como base para el sitio web de un negocio real.
 
 ## Qué incluye
 
 - Diseño responsivo (móvil, tableta y escritorio) hecho con React y Tailwind.
-- Navegación por secciones con anclas y botones de contacto por WhatsApp.
+- Menú por secciones que también funciona en el teléfono, con la sección visible resaltada.
+- Cotización con cantidades: se agregan productos, se ajusta cuánto de cada uno y se envía la lista completa por WhatsApp.
 - SEO completo: `canonical`, Open Graph y Twitter con imagen propia, JSON-LD, `robots.txt`, `sitemap.xml`, manifest, iconos y página 404.
 - Seguridad: cabeceras HTTP y política CSP estricta en `vercel.json`, `security.txt` y cero recursos de terceros (las tipografías van autoalojadas con Fontsource).
-- Privacidad: sin cookies, formularios ni analítica; página de [política de privacidad](public/privacidad/index.html) enlazada desde el pie.
-- Imágenes alojadas dentro del proyecto (`public/img`): la landing no depende de servicios externos para mostrarse.
+- Privacidad: sin cookies ni analítica; lo que se escribe en los campos no sale del navegador salvo en el mensaje de WhatsApp; página de [política de privacidad](public/privacidad/index.html) enlazada desde el pie.
+- Imágenes alojadas dentro del proyecto (`public/img`): el sitio no depende de servicios externos para mostrarse.
 
 ## Tecnología
 
