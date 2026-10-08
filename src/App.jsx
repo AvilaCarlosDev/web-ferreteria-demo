@@ -1,7 +1,8 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { MenuMovil, SaltarAlContenido } from './sitio.jsx'
 import { useSeccionActiva, wa } from './navegacion.js'
-import { CintaPeligro, Esquinas, GuiaMedidas, TituloSeccion } from './piezas.jsx'
+import { useParallax } from './motion.js'
+import { Aparece, CintaPeligro, Contador, Esquinas, GuiaMedidas, TituloSeccion } from './piezas.jsx'
 
 const enlaces = [
   ['catalogo', 'Catálogo'],
@@ -109,10 +110,10 @@ const services = [
 ]
 
 const cifras = [
-  ['3.200+', 'referencias'],
-  ['45 min', 'cotización'],
-  ['24 h', 'despacho'],
-  ['8', 'marcas'],
+  { destino: 3200, sufijo: '+', etiqueta: 'referencias' },
+  { destino: 45, sufijo: ' min', etiqueta: 'cotización' },
+  { destino: 24, sufijo: ' h', etiqueta: 'despacho' },
+  { destino: 8, sufijo: '', etiqueta: 'marcas' },
 ]
 
 function App() {
@@ -121,6 +122,8 @@ function App() {
   const [lista, setLista] = useState({})
   const [verLista, setVerLista] = useState(false)
   const activa = useSeccionActiva(enlaces.map(([id]) => id))
+  const hero = useRef(null)
+  useParallax(hero)
 
   const filteredProducts = useMemo(() => {
     const q = normalizar(busqueda.trim())
@@ -201,7 +204,7 @@ function App() {
             ))}
           </nav>
 
-          <a href={wa(mensajeLista)} className="ml-auto hidden shrink-0 bg-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wide text-obra-ink transition hover:bg-white sm:inline-flex lg:ml-0">
+          <a href={wa(mensajeLista)} className="ml-auto hidden shrink-0 bg-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wide text-obra-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white sm:inline-flex lg:ml-0">
             Cotizar{items.length > 0 && <span className="tabular ml-2 bg-obra-ink px-1.5 text-yellow-300">{items.length}</span>}
           </a>
           <div className="ml-auto sm:ml-0">
@@ -223,9 +226,10 @@ function App() {
       <main id="contenido">
         <section id="inicio" className="relative isolate overflow-hidden bg-obra-ink text-white">
           <img
+            ref={hero}
             src="/img/foto-15043076512543.jpg"
             alt="Estructura de hormigón de una obra en construcción"
-            className="absolute inset-y-0 right-0 -z-20 h-full w-full object-cover opacity-30 sm:w-3/5"
+            className="parallax absolute inset-y-0 right-0 -z-20 h-full w-full object-cover opacity-30 sm:w-3/5"
           />
           <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,#141613_0%,rgba(20,22,19,.97)_45%,rgba(20,22,19,.55)_100%)]" />
           <div aria-hidden="true" className="rejilla-obra absolute inset-0 -z-10" />
@@ -250,10 +254,10 @@ function App() {
 
             <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-center">
               <div className="flex flex-col gap-4 sm:flex-row">
-                <a href="#catalogo" className="inline-flex items-center justify-center border-2 border-yellow-400 bg-yellow-400 px-8 py-4 text-base font-black uppercase tracking-wide text-obra-ink transition hover:bg-white hover:border-white">
+                <a href="#catalogo" className="inline-flex items-center justify-center border-2 border-yellow-400 bg-yellow-400 px-8 py-4 text-base font-black uppercase tracking-wide text-obra-ink transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:shadow-[6px_6px_0_0_rgba(250,204,21,0.35)] active:translate-y-0">
                   Ver catálogo
                 </a>
-                <a href={wa('Hola, quiero cotizar una lista de materiales. Se la envío en foto.')} className="inline-flex items-center justify-center border border-white/30 px-8 py-4 text-base font-black uppercase tracking-wide text-white transition hover:bg-white/10">
+                <a href={wa('Hola, quiero cotizar una lista de materiales. Se la envío en foto.')} className="inline-flex items-center justify-center border border-white/30 px-8 py-4 text-base font-black uppercase tracking-wide text-white transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/10 active:translate-y-0">
                   Enviar lista
                 </a>
               </div>
@@ -265,10 +269,12 @@ function App() {
             </div>
 
             <dl className="mt-12 grid max-w-4xl grid-cols-2 gap-px border border-white/20 bg-white/20 sm:grid-cols-4">
-              {cifras.map(([value, label]) => (
-                <div key={label} className="bg-obra-ink/85 px-5 py-4 backdrop-blur-sm">
-                  <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-white/70">{label}</dt>
-                  <dd className="tabular mt-1 font-[family-name:var(--font-display)] text-3xl font-bold text-yellow-300">{value}</dd>
+              {cifras.map((cifra) => (
+                <div key={cifra.etiqueta} className="bg-obra-ink/85 px-5 py-4 backdrop-blur-sm">
+                  <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-white/70">{cifra.etiqueta}</dt>
+                  <dd className="mt-1 text-3xl font-bold text-yellow-300">
+                    <Contador destino={cifra.destino} sufijo={cifra.sufijo} />
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -329,62 +335,64 @@ function App() {
               <div className="border-2 border-dashed border-obra-ink/40 bg-white px-6 py-14 text-center">
                 <p className="font-[family-name:var(--font-display)] text-3xl font-bold uppercase">No está en el catálogo web</p>
                 <p className="mx-auto mt-3 max-w-md text-sm font-semibold text-obra-muted">En tienda hay más de 3.200 referencias. Pregunta por «{busqueda.trim()}» y te confirmamos existencia.</p>
-                <a href={wa(`Hola, ¿tienen ${busqueda.trim()}?`)} className="mt-6 inline-flex bg-obra-ink px-6 py-3 text-sm font-black uppercase tracking-wide text-white transition hover:bg-yellow-400 hover:text-obra-ink">Preguntar existencia</a>
+                <a href={wa(`Hola, ¿tienen ${busqueda.trim()}?`)} className="mt-6 inline-flex bg-obra-ink px-6 py-3 text-sm font-black uppercase tracking-wide text-white transition duration-300 hover:-translate-y-0.5 hover:bg-yellow-400 hover:text-obra-ink active:translate-y-0">Preguntar existencia</a>
               </div>
             )}
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product) => (
-                <article key={product.name} className="group relative flex flex-col border-2 border-obra-ink bg-white transition hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#141613]">
-                  <Esquinas />
-                  <div className="flex items-center justify-between gap-3 border-b-2 border-dashed border-obra-ink/25 px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-obra-slate">
-                    <span className="text-obra-ink">SKU {product.sku}</span>
-                    <span>{product.category}</span>
-                  </div>
-                  <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-obra-ink bg-obra-ink">
-                    <img src={product.image} alt={`${product.name}, categoría ${product.category}`} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-                    {product.badge && (
-                      <span className="absolute left-3 top-3 border-2 border-obra-ink bg-yellow-400 px-2.5 py-1 font-mono text-[11px] font-black uppercase tracking-[0.18em] text-obra-ink">
-                        {product.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-2xl font-bold uppercase leading-tight">{product.name}</h3>
-                    <dl className="mt-4 border-y border-dashed border-obra-ink/30 font-mono text-[10px] uppercase tracking-[0.14em] text-obra-slate">
-                      <div className="flex justify-between gap-3 border-b border-dashed border-obra-ink/20 py-2">
-                        <dt>Referencia</dt>
-                        <dd className="font-bold text-obra-ink">{product.sku}</dd>
-                      </div>
-                      <div className="flex justify-between gap-3 border-b border-dashed border-obra-ink/20 py-2">
-                        <dt>Presentación</dt>
-                        <dd className="text-right font-bold text-obra-ink">{product.presentacion}</dd>
-                      </div>
-                      <div className="flex justify-between gap-3 border-b border-dashed border-obra-ink/20 py-2">
-                        <dt>Existencia</dt>
-                        <dd className="tabular font-bold text-obra-ink">{product.stock}</dd>
-                      </div>
-                      <div className="flex justify-between gap-3 py-2">
-                        <dt>Entrega</dt>
-                        <dd className="font-bold text-obra-ink">24 h</dd>
-                      </div>
-                    </dl>
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-                      <strong className="tabular text-3xl font-black">{product.price}</strong>
-                      {lista[product.name] ? (
-                        <div className="flex items-center border-2 border-obra-ink" role="group" aria-label={`Cantidad de ${product.name}`}>
-                          <button type="button" onClick={() => cambiar(product.name, -1)} aria-label={`Quitar uno de ${product.name}`} className="h-11 w-11 text-xl font-black transition hover:bg-yellow-400">−</button>
-                          <span className="tabular w-10 text-center font-black" aria-live="polite">{lista[product.name]}</span>
-                          <button type="button" onClick={() => cambiar(product.name, 1)} aria-label={`Agregar uno de ${product.name}`} className="h-11 w-11 text-xl font-black transition hover:bg-yellow-400">+</button>
-                        </div>
-                      ) : (
-                        <button type="button" onClick={() => cambiar(product.name, 1)} aria-label={`Agregar ${product.name} a la cotización`} className="bg-obra-ink px-5 py-3 text-sm font-black uppercase tracking-wide text-white transition hover:bg-yellow-400 hover:text-obra-ink active:translate-y-px">
-                          + Cotizar
-                        </button>
+              {filteredProducts.map((product, indice) => (
+                <Aparece key={product.name} indice={indice}>
+                  <article className="group relative flex flex-col border-2 border-obra-ink bg-white transition duration-300 hover:-translate-y-1.5 hover:shadow-[8px_8px_0_0_#141613]">
+                    <Esquinas />
+                    <div className="flex items-center justify-between gap-3 border-b-2 border-dashed border-obra-ink/25 px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-obra-slate">
+                      <span className="text-obra-ink">SKU {product.sku}</span>
+                      <span>{product.category}</span>
+                    </div>
+                    <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-obra-ink bg-obra-ink">
+                      <img src={product.image} alt={`${product.name}, categoría ${product.category}`} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                      {product.badge && (
+                        <span className="absolute left-3 top-3 border-2 border-obra-ink bg-yellow-400 px-2.5 py-1 font-mono text-[11px] font-black uppercase tracking-[0.18em] text-obra-ink">
+                          {product.badge}
+                        </span>
                       )}
                     </div>
-                  </div>
-                </article>
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="text-2xl font-bold uppercase leading-tight">{product.name}</h3>
+                      <dl className="mt-4 border-y border-dashed border-obra-ink/30 font-mono text-[10px] uppercase tracking-[0.14em] text-obra-slate">
+                        <div className="flex justify-between gap-3 border-b border-dashed border-obra-ink/20 py-2">
+                          <dt>Referencia</dt>
+                          <dd className="font-bold text-obra-ink">{product.sku}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3 border-b border-dashed border-obra-ink/20 py-2">
+                          <dt>Presentación</dt>
+                          <dd className="text-right font-bold text-obra-ink">{product.presentacion}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3 border-b border-dashed border-obra-ink/20 py-2">
+                          <dt>Existencia</dt>
+                          <dd className="tabular font-bold text-obra-ink">{product.stock}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3 py-2">
+                          <dt>Entrega</dt>
+                          <dd className="font-bold text-obra-ink">24 h</dd>
+                        </div>
+                      </dl>
+                      <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+                        <strong className="tabular text-3xl font-black">{product.price}</strong>
+                        {lista[product.name] ? (
+                          <div className="flex items-center border-2 border-obra-ink" role="group" aria-label={`Cantidad de ${product.name}`}>
+                            <button type="button" onClick={() => cambiar(product.name, -1)} aria-label={`Quitar uno de ${product.name}`} className="h-11 w-11 text-xl font-black transition hover:bg-yellow-400">−</button>
+                            <span className="tabular w-10 text-center font-black" aria-live="polite">{lista[product.name]}</span>
+                            <button type="button" onClick={() => cambiar(product.name, 1)} aria-label={`Agregar uno de ${product.name}`} className="h-11 w-11 text-xl font-black transition hover:bg-yellow-400">+</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => cambiar(product.name, 1)} aria-label={`Agregar ${product.name} a la cotización`} className="bg-obra-ink px-5 py-3 text-sm font-black uppercase tracking-wide text-white transition duration-300 hover:-translate-y-0.5 hover:bg-yellow-400 hover:text-obra-ink active:translate-y-0">
+                            + Cotizar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                </Aparece>
               ))}
             </div>
           </div>
@@ -448,7 +456,7 @@ function App() {
                     <p className="mt-4 mb-8 text-sm font-medium leading-6 text-white/70">{pack.desc}</p>
                     <div className="mt-auto flex items-center justify-between gap-4 border-t border-white/15 pt-5">
                       <strong className="tabular text-2xl font-black text-yellow-300">{pack.price}</strong>
-                      <a href={wa(`Hola, quiero el ${pack.title} (${pack.price.toLowerCase()}).`)} aria-label={`Pedir ${pack.title}`} className="bg-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wide text-obra-ink transition hover:bg-white">
+                      <a href={wa(`Hola, quiero el ${pack.title} (${pack.price.toLowerCase()}).`)} aria-label={`Pedir ${pack.title}`} className="bg-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wide text-obra-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white active:translate-y-0">
                         Pedir
                       </a>
                     </div>
@@ -506,18 +514,18 @@ function App() {
         </section>
 
         <section className="bg-yellow-400 text-obra-ink">
-          <CintaPeligro className="h-4" />
+          <CintaPeligro animada className="h-4" />
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 py-16 md:flex-row md:items-center lg:px-8">
             <div>
               <p className="font-mono text-xs font-bold uppercase tracking-[0.3em]">Orden de compra</p>
               <h2 className="estarcido mt-4 max-w-3xl text-5xl font-bold uppercase sm:text-6xl">¿Tienes una lista de materiales?</h2>
               <p className="mt-4 max-w-xl text-base font-bold text-obra-ink/80">Mándala por WhatsApp y convertimos tu lista en presupuesto organizado.</p>
             </div>
-            <a href={wa('Hola, les envío mi lista de materiales para cotizar.')} className="shrink-0 border-2 border-obra-ink bg-obra-ink px-8 py-4 text-sm font-black uppercase tracking-wide text-white transition hover:bg-white hover:text-obra-ink">
+            <a href={wa('Hola, les envío mi lista de materiales para cotizar.')} className="shrink-0 border-2 border-obra-ink bg-obra-ink px-8 py-4 text-sm font-black uppercase tracking-wide text-white transition duration-300 hover:-translate-y-1 hover:bg-white hover:text-obra-ink hover:shadow-[6px_6px_0_0_rgba(20,22,19,0.35)] active:translate-y-0">
               Enviar lista
             </a>
           </div>
-          <CintaPeligro className="h-4" />
+          <CintaPeligro animada className="h-4" />
         </section>
       </main>
 
@@ -581,7 +589,7 @@ function App() {
             <span className="block font-mono text-[11px] font-bold uppercase tracking-[0.18em]">Tu cotización · <span className="tabular">{items.length}</span> {items.length === 1 ? 'producto' : 'productos'}</span>
             <span className="block text-sm font-semibold underline underline-offset-4">{verLista ? 'Ocultar lista' : 'Ver y ajustar cantidades'}</span>
           </button>
-          <a href={wa(mensajeLista)} className="shrink-0 bg-obra-ink px-5 py-3 text-sm font-black uppercase tracking-wide text-white transition hover:bg-white hover:text-obra-ink active:translate-y-px">
+          <a href={wa(mensajeLista)} className="shrink-0 bg-obra-ink px-5 py-3 text-sm font-black uppercase tracking-wide text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:text-obra-ink active:translate-y-0">
             Enviar
           </a>
         </div>
