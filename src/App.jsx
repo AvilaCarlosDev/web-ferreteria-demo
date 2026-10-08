@@ -1,14 +1,15 @@
-import { Fragment, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { MenuMovil, SaltarAlContenido } from './sitio.jsx'
 import { useSeccionActiva, wa } from './navegacion.js'
 import { useParallax } from './motion.js'
-import { Aparece, CintaPeligro, Contador, Esquinas, GuiaMedidas, TituloSeccion } from './piezas.jsx'
+import { Aparece, CintaPeligro, Contador, Esquinas, GuiaMedidas, MapaUbicacion, TituloSeccion } from './piezas.jsx'
 
 const enlaces = [
   ['catalogo', 'Catálogo'],
   ['departamentos', 'Departamentos'],
   ['paquetes', 'Paquetes'],
   ['servicios', 'Servicios'],
+  ['ubicacion', 'Ubicación'],
 ]
 
 const normalizar = (texto) => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -116,6 +117,14 @@ const cifras = [
   { destino: 8, sufijo: '', etiqueta: 'marcas' },
 ]
 
+const zonasDespacho = [
+  ['Centro', '$3'],
+  ['Judibana', '$6'],
+  ['Puerta Maraven', '$5'],
+]
+
+const rutaGoogleMaps = 'https://www.google.com/maps/search/?api=1&query=Punto+Fijo+Falcón+Venezuela'
+
 function App() {
   const [activeCategory, setActiveCategory] = useState('Todos')
   const [busqueda, setBusqueda] = useState('')
@@ -124,6 +133,14 @@ function App() {
   const activa = useSeccionActiva(enlaces.map(([id]) => id))
   const hero = useRef(null)
   useParallax(hero)
+
+  useEffect(() => {
+    const destino = window.location.hash.slice(1)
+    if (!destino) return
+    const elemento = document.getElementById(destino)
+    if (typeof elemento?.scrollIntoView !== 'function') return
+    elemento.scrollIntoView({ behavior: 'instant' })
+  }, [])
 
   const filteredProducts = useMemo(() => {
     const q = normalizar(busqueda.trim())
@@ -175,7 +192,7 @@ function App() {
             </span>
           </a>
 
-          <form role="search" onSubmit={buscar} className="hidden flex-1 items-center border border-white/25 bg-white/10 px-3 py-1.5 transition focus-within:border-yellow-400 lg:flex">
+          <form role="search" onSubmit={buscar} className="hidden flex-1 items-center border border-white/25 bg-white/10 px-3 py-1.5 transition focus-within:border-yellow-400 lg:flex xl:hidden">
             <span aria-hidden="true" className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-yellow-300">REF.</span>
             <input
               type="search"
@@ -190,7 +207,7 @@ function App() {
             </button>
           </form>
 
-          <nav aria-label="Principal" className="hidden items-center gap-1 font-mono text-xs font-bold uppercase tracking-[0.12em] text-white/70 lg:flex">
+          <nav aria-label="Principal" className="hidden items-center gap-1 font-mono text-xs font-bold uppercase tracking-[0.12em] text-white/70 xl:ml-auto xl:flex">
             {enlaces.map(([id, texto], i) => (
               <a
                 key={id}
@@ -204,7 +221,7 @@ function App() {
             ))}
           </nav>
 
-          <a href={wa(mensajeLista)} className="ml-auto hidden shrink-0 bg-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wide text-obra-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white sm:inline-flex lg:ml-0">
+          <a href={wa(mensajeLista)} className="ml-auto hidden shrink-0 bg-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wide text-obra-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white sm:inline-flex">
             Cotizar{items.length > 0 && <span className="tabular ml-2 bg-obra-ink px-1.5 text-yellow-300">{items.length}</span>}
           </a>
           <div className="ml-auto sm:ml-0">
@@ -306,7 +323,7 @@ function App() {
               nota="Precio y existencia de hoy. Arma tu cotización con cantidades y la enviamos lista para aprobar."
             />
 
-            <form role="search" onSubmit={buscar} className="mb-5 lg:hidden">
+            <form role="search" onSubmit={buscar} className="mb-5 lg:hidden xl:block">
               <input
                 type="search"
                 value={busqueda}
@@ -527,6 +544,69 @@ function App() {
           </div>
           <CintaPeligro animada className="h-4" />
         </section>
+
+        <section id="ubicacion" className="bg-white py-24">
+          <div className="mx-auto max-w-7xl px-5 lg:px-8">
+            <GuiaMedidas className="mb-10" />
+            <TituloSeccion
+              indice="05"
+              etiqueta="Ubicación y despacho"
+              titulo="Te esperamos en Punto Fijo"
+              nota="Pasa por la sucursal o coordina la entrega a obra por WhatsApp. La tarifa por zona queda publicada para que calcules el costo antes de pedir."
+            />
+
+            <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+              <div className="flex flex-col gap-6">
+                <div className="border-2 border-obra-ink bg-obra-bg p-6 sm:p-7">
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-obra-amber">Sucursal principal</p>
+                  <p className="mt-4 font-[family-name:var(--font-display)] text-4xl font-bold uppercase leading-none">Punto Fijo</p>
+                  <p className="mt-2 font-mono text-xs font-bold uppercase tracking-[0.2em] text-obra-slate">Falcón · Venezuela</p>
+                  <dl className="mt-6 border-t border-dashed border-obra-ink/30 font-mono text-[11px] uppercase tracking-[0.14em]">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-dashed border-obra-ink/25 py-3">
+                      <dt className="text-obra-slate">Horario</dt>
+                      <dd className="font-bold text-obra-ink">Lun-Sáb: 7:30 AM - 6:00 PM</dd>
+                    </div>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-dashed border-obra-ink/25 py-3">
+                      <dt className="text-obra-slate">Atención</dt>
+                      <dd className="font-bold text-obra-ink">WhatsApp +58 412-000-0000</dd>
+                    </div>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
+                      <dt className="text-obra-slate">Entrega</dt>
+                      <dd className="font-bold text-obra-ink">24 h a obra</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="border-2 border-obra-ink bg-obra-ink p-6 text-white sm:p-7">
+                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-yellow-300">Zonas de despacho</p>
+                  <ul className="mt-4 divide-y divide-white/15 border-y border-white/15">
+                    {zonasDespacho.map(([zona, tarifa]) => (
+                      <li key={zona} className="flex items-baseline justify-between gap-4 py-3 text-sm font-semibold">
+                        <span>{zona}</span>
+                        <span className="tabular font-mono text-lg font-black text-yellow-300">{tarifa}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-xs font-semibold leading-5 text-white/55">Tarifa por envío a obra, sujeta a volumen y horario de recepción.</p>
+                </div>
+
+                <a
+                  href={rutaGoogleMaps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 border-2 border-obra-ink bg-yellow-400 px-8 py-4 text-base font-black uppercase tracking-wide text-obra-ink transition duration-300 hover:-translate-y-0.5 hover:bg-obra-ink hover:text-yellow-300 hover:shadow-[6px_6px_0_0_rgba(20,22,19,0.25)] active:translate-y-0"
+                >
+                  Cómo llegar
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+
+              <Aparece>
+                <MapaUbicacion />
+              </Aparece>
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className="bg-obra-ink text-white">
@@ -554,7 +634,7 @@ function App() {
           <div>
             <h3 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-yellow-300">Contacto</h3>
             <ul className="mt-5 space-y-3 text-sm font-semibold text-white/60">
-              <li>Punto Fijo, Falcón</li>
+              <li><a href="#ubicacion" className="hover:text-yellow-300">Punto Fijo, Falcón</a></li>
               <li><a href={wa()} className="hover:text-yellow-300">WhatsApp: +58 412-000-0000</a></li>
               <li>Lun-Sáb: 7:30 AM - 6:00 PM</li>
             </ul>

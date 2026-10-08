@@ -145,6 +145,48 @@ p {
   will-change: transform;
 }
 
+.mapa-svg .ruta-mapa {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.mapa-svg.animar .ruta-mapa {
+  stroke-dashoffset: 1;
+}
+
+.mapa-svg.animar.dibujada .ruta-mapa {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.mapa-entra {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.mapa-svg.dibujada .mapa-entra {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.4s ease 0.75s,
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.75s;
+}
+
+.mapa-pin-principal.rebota {
+  animation: pin-rebotar 2s cubic-bezier(0.45, 0, 0.55, 1) 1.3s infinite;
+}
+
+@keyframes pin-rebotar {
+  0%,
+  55%,
+  100% {
+    transform: translateY(0);
+  }
+  28% {
+    transform: translateY(-9px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -157,6 +199,21 @@ p {
   .parallax {
     transform: none;
     will-change: auto;
+  }
+
+  .mapa-svg .ruta-mapa {
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+
+  .mapa-svg .mapa-entra {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .mapa-pin-principal.rebota {
+    animation: none !important;
   }
 
   *, *::before, *::after {
