@@ -123,6 +123,168 @@ export function TituloSeccion({ indice, etiqueta, titulo, nota, tono = 'claro' }
   )
 }
 
+const PIN_D = 'M12 0C5.373 0 0 5.373 0 12c0 8.25 12 22 12 22s12-13.75 12-22c0-6.627-5.373-12-12-12z'
+
+const VERTICALES = [40, 130, 220, 310, 400, 490, 580]
+
+const HORIZONTALES = [40, 100, 300, 360, 410]
+
+const EDIFICIOS = [
+  [64, 59, 58, 34],
+  [154, 122, 58, 48],
+  [334, 126, 56, 44],
+  [64, 230, 56, 58],
+  [424, 228, 56, 60],
+  [234, 319, 64, 32],
+  [514, 319, 56, 32],
+  [424, 378, 54, 26],
+]
+
+const RUTA_LLEGADA = 'M20 416 H300 Q318 416 318 398 V130'
+
+const anchoEtiqueta = (texto, tam) => Math.round(texto.length * tam * 0.66) + 20
+
+function PinMapa({ x, y, escala = 1, principal = false, rebotar = false }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${escala})`}>
+      <ellipse cx="0" cy="2" rx="7" ry="2.4" fill="#141613" opacity="0.25" />
+      <g className={`mapa-entra mapa-pin-principal ${principal && rebotar ? 'rebota' : ''}`}>
+        <g transform="translate(-12 -34)">
+          <path d={PIN_D} fill="#ea4335" />
+          <circle cx="12" cy="12" r="4.6" fill="#ffffff" />
+        </g>
+      </g>
+    </g>
+  )
+}
+
+function EtiquetaMapa({ x, y, texto, tam = 14, anclaje = 'middle' }) {
+  const baseX = Number(x)
+  const baseY = Number(y)
+  const ancho = anchoEtiqueta(texto, tam)
+  const inicio = anclaje === 'start' ? baseX : baseX - ancho / 2
+  return (
+    <g>
+      <rect x={inicio + 1} y={baseY + 2} width={ancho} height="26" rx="3" fill="#141613" opacity="0.14" />
+      <rect x={inicio} y={baseY} width={ancho} height="26" rx="3" fill="#ffffff" stroke="#dadce0" />
+      <text
+        x={inicio + ancho / 2}
+        y={baseY + 18}
+        textAnchor="middle"
+        fontSize={tam}
+        fontWeight="700"
+        letterSpacing="1"
+        fill="#1f1f1f"
+        className="font-mono"
+      >
+        {texto}
+      </text>
+    </g>
+  )
+}
+
+export function MapaUbicacion({ className = '' }) {
+  const [referencia, visto] = useEnViewport({ umbral: 0.2, margen: '0px 0px -60px 0px' })
+  const reducido = useMovimientoReducido()
+
+  return (
+    <figure
+      ref={referencia}
+      className={`border-4 border-yellow-400 bg-obra-ink p-2 shadow-[10px_10px_0_0_rgba(20,22,19,0.2)] ${className}`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-2 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-yellow-300">
+        <span>REF. MAPA · OM-01</span>
+        <span className="text-white/45">Punto Fijo · Falcón</span>
+      </div>
+
+      <div className="overflow-hidden border-2 border-yellow-400/30 bg-[#e8eaed]">
+        <svg
+          viewBox="0 0 640 430"
+          role="img"
+          aria-labelledby="mapa-titulo mapa-descripcion"
+          className={`mapa-svg block h-auto w-full ${reducido ? '' : 'animar'} ${visto ? 'dibujada' : ''}`}
+        >
+          <title id="mapa-titulo">Mapa de ubicación de ObraMax Supply</title>
+          <desc id="mapa-descripcion">
+            Plano esquemático de Punto Fijo con la sucursal ObraMax Supply y las zonas de despacho Centro, Judibana y Puerta Maraven.
+          </desc>
+
+          <rect x="0" y="0" width="640" height="430" fill="#e8eaed" />
+
+          {EDIFICIOS.map(([x, y, w, h]) => (
+            <rect key={`${x}-${y}`} x={x} y={y} width={w} height={h} rx="2" fill="#dadce0" opacity="0.55" />
+          ))}
+
+          {VERTICALES.map((x) => (
+            <rect key={`v-${x}`} x={x} y="0" width="16" height="430" fill="#ffffff" stroke="#dadce0" />
+          ))}
+
+          {HORIZONTALES.map((y) => (
+            <rect key={`h-${y}`} x="0" y={y} width="640" height="13" fill="#ffffff" stroke="#dadce0" />
+          ))}
+
+          <rect x="0" y="180" width="640" height="38" fill="#ffffff" stroke="#dadce0" />
+          <path d="M0 199 H640" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="16 14" />
+
+          <path className="ruta-mapa" d={RUTA_LLEGADA} pathLength="1" fill="none" stroke="#ffffff" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="ruta-mapa" d={RUTA_LLEGADA} pathLength="1" fill="none" stroke="#1a73e8" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="20" cy="416" r="7" fill="#1a73e8" stroke="#ffffff" strokeWidth="3" />
+
+          <g className="mapa-entra">
+            <EtiquetaMapa x="338" y="96" texto="ObraMax · Sucursal" tam="16" anclaje="start" />
+            <EtiquetaMapa x="138" y="378" texto="Centro · $3" />
+            <EtiquetaMapa x="498" y="286" texto="Judibana · $6" />
+            <EtiquetaMapa x="408" y="378" texto="Puerta Maraven · $5" />
+          </g>
+
+          <PinMapa x="318" y="130" principal rebotar={!reducido} />
+          <PinMapa x="138" y="366" escala="0.62" />
+          <PinMapa x="498" y="274" escala="0.62" />
+          <PinMapa x="408" y="366" escala="0.62" />
+
+          <g>
+            <text x="570" y="390" textAnchor="middle" fontSize="13" fontWeight="700" letterSpacing="1" fill="#5f645c" className="font-mono">
+              250 m
+            </text>
+            <path d="M536 400 H604 M536 395 V405 M604 395 V405 M570 397 V403" fill="none" stroke="#5f645c" strokeWidth="2" />
+          </g>
+        </svg>
+      </div>
+
+      <figcaption className="flex flex-wrap items-center gap-x-5 gap-y-2 px-2 pb-1 pt-3 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">
+        <span className="flex items-center gap-2">
+          <svg viewBox="0 0 24 34" className="h-4 w-3 shrink-0" aria-hidden="true">
+            <path d={PIN_D} fill="#ea4335" />
+            <circle cx="12" cy="12" r="4.6" fill="#ffffff" />
+          </svg>
+          ObraMax · Sucursal
+        </span>
+        <span className="flex items-center gap-2">
+          <svg viewBox="0 0 24 34" className="h-3 w-2 shrink-0" aria-hidden="true">
+            <path d={PIN_D} fill="#ea4335" />
+            <circle cx="12" cy="12" r="4.6" fill="#ffffff" />
+          </svg>
+          Centro · $3
+        </span>
+        <span className="flex items-center gap-2">
+          <svg viewBox="0 0 24 34" className="h-3 w-2 shrink-0" aria-hidden="true">
+            <path d={PIN_D} fill="#ea4335" />
+            <circle cx="12" cy="12" r="4.6" fill="#ffffff" />
+          </svg>
+          Judibana · $6
+        </span>
+        <span className="flex items-center gap-2">
+          <svg viewBox="0 0 24 34" className="h-3 w-2 shrink-0" aria-hidden="true">
+            <path d={PIN_D} fill="#ea4335" />
+            <circle cx="12" cy="12" r="4.6" fill="#ffffff" />
+          </svg>
+          Puerta Maraven · $5
+        </span>
+      </figcaption>
+    </figure>
+  )
+}
+
 export function Esquinas() {
   return (
     <svg

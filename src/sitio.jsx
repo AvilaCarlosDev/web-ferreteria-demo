@@ -24,7 +24,7 @@ export function MenuMovil({ enlaces, activa, cta, tono }) {
   }, [abierto])
 
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         onClick={() => setAbierto((v) => !v)}
