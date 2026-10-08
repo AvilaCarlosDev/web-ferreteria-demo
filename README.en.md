@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/AvilaCarlosDev/web-ferreteria-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/AvilaCarlosDev/web-ferreteria-demo/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Live demo](https://img.shields.io/badge/live%20demo-Vercel-000?logo=vercel)](https://agencia-web-ferreteria-demo.vercel.app)
 
-<a href="https://agencia-web-ferreteria-demo.vercel.app"><img src="docs/portada.jpg" alt="ObraMax on desktop and phone: home page with products, quote and WhatsApp order" width="100%"></a>
+<a href="https://agencia-web-ferreteria-demo.vercel.app"><img src="docs/portada.jpg" alt="ObraMax Supply hero with stencil headline, catalog CTA and supply figures" width="100%"></a>
 
 Demo one-page website for an industrial hardware store: a technical catalog, job-site bundles and quotes by WhatsApp.
 
